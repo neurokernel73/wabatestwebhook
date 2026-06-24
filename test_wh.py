@@ -39,7 +39,7 @@ async def whatsapp_webhook(request: Request):
     origin = request.headers.get("Origin")
     print(origin)
     ip_origen = request.client.host
-    print(ip_origin)
+    print(ip_origen)
     try:
         # Extraer el JSON que envía Meta
         body = await request.json()
