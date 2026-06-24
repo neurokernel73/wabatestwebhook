@@ -84,8 +84,8 @@ async def whatsapp_webhook(request: Request):
         # Preparamos la acción que el celular del usuario debe hacer ahora
         # Por ejemplo, avanzar a una pantalla llamada "SUCCESS_SCREEN"
         response_payload = {
-            data: {
-                    status: "active",
+            "data": {
+                    "status": "active",
                   },
         }
         response_bytes = json.dumps(response_payload).encode('utf-8')
@@ -107,8 +107,8 @@ async def whatsapp_webhook(request: Request):
         print(f"❌ Error procesando el webhook: {e}")
         # Retornar error 500 informará a Meta que hubo un problema y mostrará error en el celular
         response_payload = {
-            data: {
-                status: "active",
+            "data": {
+                "status": "active",
             }
         }
         response_bytes = json.dumps(response_payload).encode('utf-8')
