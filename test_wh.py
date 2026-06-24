@@ -38,6 +38,8 @@ async def whatsapp_webhook(request: Request):
     print(referer)
     origin = request.headers.get("Origin")
     print(origin)
+    ip_origen = request.client.host
+    print(ip_origin)
     try:
         # Extraer el JSON que envía Meta
         body = await request.json()
@@ -105,8 +107,10 @@ async def whatsapp_webhook(request: Request):
         print(f"❌ Error procesando el webhook: {e}")
         # Retornar error 500 informará a Meta que hubo un problema y mostrará error en el celular
         response_payload = {
-                                "status": "active"
-                            }
+            data: {
+                status: "active",
+            }
+        }
         response_bytes = json.dumps(response_payload).encode('utf-8')
         # Meta exige que invirtamos los bits del IV (Vector de Inicialización) para la respuesta
         flipped_iv = bytes(~b & 0xFF for b in initial_vector)
