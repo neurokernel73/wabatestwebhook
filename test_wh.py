@@ -34,6 +34,10 @@ async def whatsapp_webhook(request: Request):
     """
     Este endpoint atrapa los envíos del formulario de WhatsApp Flows.
     """
+    referer = request.headers.get("Referer")
+    print(referer)
+    origin = request.headers.get("Origin")
+    print(origin)
     try:
         # Extraer el JSON que envía Meta
         body = await request.json()
