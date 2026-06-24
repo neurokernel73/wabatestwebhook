@@ -34,16 +34,10 @@ async def whatsapp_webhook(request: Request):
     """
     Este endpoint atrapa los envíos del formulario de WhatsApp Flows.
     """
-    referer = request.headers.get("Referer")
-    print(referer)
-    origin = request.headers.get("Origin")
-    print(origin)
-    ip_origen = request.client.host
-    print(ip_origen)
     try:
         # Extraer el JSON que envía Meta
         body = await request.json()
-    
+        print(body) 
         # Validar que es un payload encriptado de Flows (Omitimos mensajes de texto normales aquí)
         if "encrypted_flow_data" not in body:
             # Aquí podrías manejar mensajes estándar o notificaciones de estado
