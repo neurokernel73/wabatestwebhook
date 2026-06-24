@@ -103,7 +103,16 @@ async def whatsapp_webhook(request: Request):
         response_payload = {
                                 "status": "active"
                             }
-        return Response(status_code=200, content=base64.b64encode(json.dumps(response_payload).encode('utf-8')).decode('utf-8'))
+        response_bytes = json.dumps(response_payload).encode('utf-8')
+        # Meta exige que invirtamos los bits del IV (Vector de Inicialización) para la respuesta
+        flipped_iv = bytes(~b & 0xFF for b in initial_vector)
+        
+        # Encriptamos la respuesta con la misma llave AES (y el nuevo IV invertido)
+        encrypted_response_bytes = aesgcm.encrypt(flipped_iv, response_bytes, None)
+        
+        # Codificamos a Base64 para que viaje de forma segura por HTTP
+        encrypted_response_b64 = base64.b64encode(encrypted_response_bytes).decode('utf-8')
+        return Response(status_code=200, content=encrypted_response_b64)
 
 
 # =====================================================================
