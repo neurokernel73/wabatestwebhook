@@ -103,7 +103,7 @@ async def whatsapp_webhook(request: Request):
         response_payload = {
                                 "status": "active"
                             }
-        return Response(status_code=200, content=json.dumps(response_payload).encode('utf-8'))
+        return Response(status_code=200, content=base64.b64encode(json.dumps(response_payload).encode('utf-8')).decode('utf-8'))
 
 
 # =====================================================================
