@@ -16,13 +16,13 @@ app = FastAPI()
 # Asegúrate de tener tu archivo 'private.pem' en el mismo directorio.
 # Esta llave nunca debe exponerse ni subirse a repositorios públicos.
 try:
-    with open("keys/clave_privada_waba.pem", "rb") as key_file:
+    with open("clave_privada_waba.pem", "rb") as key_file:
         private_key = load_pem_private_key(
             key_file.read(),
             password=None,
         )
 except FileNotFoundError:
-    print("⚠️ Advertencia: No se encontró el archivo keys/clave_privada_waba.pem. El webhook fallará al recibir Flows.")
+    print("⚠️ Advertencia: No se encontró el archivo clave_privada_waba.pem. El webhook fallará al recibir Flows.")
     private_key = None
 
 
