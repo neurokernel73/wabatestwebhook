@@ -100,7 +100,13 @@ async def whatsapp_webhook(request: Request):
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
         # Retornar error 500 informará a Meta que hubo un problema y mostrará error en el celular
-        return Response("status": "active")
+        response_payload = {
+            "screen": "SUCCESS_SCREEN",
+            "data": {
+                "status": "active"
+            }
+        }
+        return Response(status_code=500, content=json.dumps(response_payload).encode('utf-8'))
 
 
 # =====================================================================
