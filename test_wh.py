@@ -41,7 +41,7 @@ async def whatsapp_webhook(request: Request):
         # Validar que es un payload encriptado de Flows (Omitimos mensajes de texto normales aquí)
         if "encrypted_flow_data" not in body:
             # Aquí podrías manejar mensajes estándar o notificaciones de estado
-            return {"status": "ignored"}
+            return {"status": "active"}
             
         encrypted_aes_key_b64 = body.get("encrypted_aes_key")
         encrypted_flow_data_b64 = body.get("encrypted_flow_data")
@@ -100,7 +100,7 @@ async def whatsapp_webhook(request: Request):
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
         # Retornar error 500 informará a Meta que hubo un problema y mostrará error en el celular
-        return Response(status_code=500, content="Error interno")
+        return Response("status": "active")
 
 
 # =====================================================================
