@@ -2,6 +2,7 @@ import base64
 import json
 import os
 import requests
+import socket
 from fastapi import FastAPI, Request, Response
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
@@ -34,8 +35,24 @@ async def whatsapp_webhook(request: Request):
     """
     Este endpoint atrapa los envíos del formulario de WhatsApp Flows.
     """
-    host_cliente = request.headers.get("X-Forwarded-Host") or request.headers.get("Host")
-    print(f'Host: {host_cliente}')
+    dominio_resuelto = "No se pudo resolver"
+    # 1. Obtener la IP real del backend cliente
+    ip_cliente = request.headers.get("X-Forwarded-For")
+    if ip_cliente:
+        ip_cliente = ip_cliente.split(",")[0].strip()
+    else:
+        ip_cliente = request.client.host if request.client else None
+
+    # 2. Intentar resolver el dominio mediante DNS Inverso
+    if ip_cliente:
+        try:
+            # socket.gethostbyaddr devuelve una tupla; el primer elemento es el dominio principal
+            dominio_resuelto = socket.gethostbyaddr(ip_cliente)[0]
+        except socket.herror:
+            # La IP no tiene un registro PTR configurado en su DNS
+            dominio_resuelto = f"IP: {ip_cliente} (Sin registro DNS)"
+            
+    print(f'Dominio: {dominio_resuelto}')
     try:
         # Extraer el JSON que envía Meta
         body = await request.json()
