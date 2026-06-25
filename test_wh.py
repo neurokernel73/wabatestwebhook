@@ -97,6 +97,18 @@ async def whatsapp_webhook(request: Request):
                     "status": "active",
                 }
             }
+        elif decrypted_data.get("action") == "INIT":
+            # Extraemos el token si pasaste algún ID o información en él
+            flow_token = decrypted_data.get("flow_token") 
+            
+            # Estructura requerida por Meta WhatsApp Flows
+            response_payload = {
+                "version": decrypted_data.get("version", "3.0"), # Debe coincidir con la versión de la petición
+                "action": "navigate",                  # Le indicamos a la app que navegue a la pantalla
+                "screen": "QUESTION_ONE", # Reemplaza con el ID exacto de tu Flow JSON
+                "data": {}
+            }
+            return Response(status_code=200, content=json.dumps(response_payload), media_type="text/plain")
         else:
             response_payload = {
                 "data": {
