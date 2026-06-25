@@ -108,6 +108,7 @@ async def whatsapp_webhook(request: Request):
                 "screen": "QUESTION_ONE", # Reemplaza con el ID exacto de tu Flow JSON
                 "data": {}
             }
+            print(json.dumps(response_payload, indent=2))
             return Response(status_code=200, content=json.dumps(response_payload), media_type="text/plain")
         else:
             response_payload = {
