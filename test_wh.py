@@ -74,16 +74,23 @@ async def whatsapp_webhook(request: Request):
         print("✅ Datos exitosamente desencriptados del Flow:")
         print(json.dumps(decrypted_data, indent=2))
         
+        if decrypted_data.get("action") == "ping":
+            response_payload = {
+                "data": {
+                    "status": "active",
+                }
+            }
+        else:
+            response_payload = {
+                "data": {
+                    "message": "¡Recibimos tu solicitud correctamente!"
+                }
+            }
+        
         # =====================================================================
         # 4. ENCRIPTAR LA RESPUESTA Y DEVOLVERLA A META
         # =====================================================================
-        # Preparamos la acción que el celular del usuario debe hacer ahora
-        # Por ejemplo, avanzar a una pantalla llamada "SUCCESS_SCREEN"
-        response_payload = {
-            "data": {
-                "status": "active",
-            }
-        }
+        
         response_bytes = json.dumps(response_payload).encode('utf-8')
         
         # Meta exige que invirtamos los bits del IV (Vector de Inicialización) para la respuesta
