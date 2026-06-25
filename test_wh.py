@@ -104,7 +104,7 @@ async def whatsapp_webhook(request: Request):
         
         # MUY IMPORTANTE: WhatsApp Flows exige que el endpoint devuelva texto plano 
         # con la cadena Base64, NO un JSON.
-        return Response(content=encrypted_response_b64, media_type="text/plain")
+        return Response(status_code=200, content=encrypted_response_b64, media_type="text/plain")
         
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
