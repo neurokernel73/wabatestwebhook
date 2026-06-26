@@ -195,6 +195,12 @@ async def webhookroot(request: Request):
         # Extraer el JSON que envía Meta
         body = await request.json()
         print(body) 
+        for entry in body.get("entry", []):
+            for change in entry.get("changes", []):
+                value = change.get("value", {})
+                if "messages" in value:
+                    print("✅ El request SÍ contiene mensajes.")
+                    send_whatsapp_flow_template("525513686487","activar_tarjeta","token_unico_123")
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
         
