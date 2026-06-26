@@ -165,6 +165,11 @@ async def whatsapp_webhook(request: Request):
         encrypted_response_b64 = base64.b64encode(encrypted_response_bytes).decode('utf-8')
         return Response(status_code=200, content=encrypted_response_b64)
 
+@app.post("/")
+async def webhookroot(request: Request):
+    send_whatsapp_flow_template("525513686487","activar_tarjeta","token_unico_123")
+    return "ok"
+
 
 # =====================================================================
 # 5. DETONAR UNA PLANTILLA CON EL BOTÓN DEL FLOW
@@ -174,8 +179,11 @@ def send_whatsapp_flow_template(phone_number: str, template_name: str, flow_toke
     Esta función envía de forma proactiva la plantilla que invita al usuario a abrir el Flow.
     """
     # Preferentemente cargar estas variables de entorno (.env)
-    PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "TU_PHONE_NUMBER_ID")
-    ACCESS_TOKEN = os.environ.get("WHATSAPP_ACCESS_TOKEN", "TU_ACCESS_TOKEN")
+    # PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "TU_PHONE_NUMBER_ID")
+    # ACCESS_TOKEN = os.environ.get("WHATSAPP_ACCESS_TOKEN", "TU_ACCESS_TOKEN")
+
+    PHONE_NUMBER_ID = '1229158673605024'
+    ACCESS_TOKEN = 'EAAV9gZB0xn7YBRzAOAWDwYY5fHMWJFclkXM2g2mNjhTZCs8xhkPcb0ia94LMCpUB7OJqlQXEgCr4vAcchNxlZAqduauWjz1DcDaO6Ksdwg49CMKevRv6xdCWAkIc7Qj7pt5R7CZAZAZAYA7XH3NYX9IGK2rUADig8R0Xr8JMiBcKtG6VlZBZBS1p95iFVGUpoAZDZD'
     
     url = f"https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages"
     
@@ -187,40 +195,31 @@ def send_whatsapp_flow_template(phone_number: str, template_name: str, flow_toke
     # Este es el Payload estándar para detonar un HSM (Plantilla) que incluye un Flow
     payload = {
         "messaging_product": "whatsapp",
-        "to": phone_number,
-        "type": "template",
-        "template": {
-            "name": template_name, 
-            "language": {
-                "code": "es_MX"  # Ajustar a la configuración de tu plantilla
+        "to": f"{phone_number}",
+        "recipient_type": "individual",
+        "type": "interactive",
+        "interactive": {
+            "type": "flow",
+            "header": {
+                "type": "text",
+                "text": "Agregar Tarjeta"
             },
-            "components": [
-                {
-                    "type": "button",
-                    "sub_type": "flow",
-                    "index": "0", # Representa el primer botón
-                    "parameters": [
-                        {
-                            "type": "action",
-                            "action": {
-                                # Este token te será devuelto en el Webhook para rastrear la sesión del usuario
-                                "flow_token": flow_token, 
-                                "flow_action_data": {
-                                    "on_click_action": {
-                                        "name": "navigate",
-                                        "payload": {
-                                            "screen": "START_SCREEN" # La pantalla inicial que diseñaste en tu JSON de Flow
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    ]
+            "body": {
+                "text": "Datos de la tarjeta"
+            },
+            "action": {
+                "name": "flow",
+                "parameters": {
+                    "flow_message_version": "3",
+                    "flow_action": "data_exchange",
+                    "flow_token": f"{flow_token}",
+                    "flow_name": f"{template_name}",
+                    "flow_cta": "Ingresar datos"
                 }
-            ]
+            }
         }
     }
-    
+    print(json.dumps(payload, indent=2))
     # Enviamos el POST a la API Graph de Meta
     response = requests.post(url, headers=headers, json=payload)
     
@@ -230,3 +229,5 @@ def send_whatsapp_flow_template(phone_number: str, template_name: str, flow_toke
         print(f"❌ Error al enviar plantilla: {response.text}")
         
     return response.json()
+
+
