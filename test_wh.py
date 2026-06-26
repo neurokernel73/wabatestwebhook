@@ -202,7 +202,7 @@ async def webhookroot(request: Request):
                     messages = value["messages"]
                     for message in messages:
                         tipo_mensaje = message.get("type")
-                        if tipo_message == 'text':
+                        if tipo_mensaje == 'text':
                             print("✅ El request es texto libre del usuario")
                             send_whatsapp_flow_template("525513686487","activar_tarjeta","token_unico_123")
     except Exception as e:
