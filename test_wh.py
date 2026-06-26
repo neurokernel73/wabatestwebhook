@@ -116,10 +116,16 @@ async def whatsapp_webhook(request: Request):
             #return Response(status_code=200, content=json.dumps(response_payload), media_type="text/plain")
         else:
             response_payload = {
+                "screen": "SUCCESS",
                 "data": {
-                    "message": "¡Recibimos tu solicitud correctamente!"
+                    "extension_message_response": {
+                        "params": {
+                            "flow_token": decrypted_data.get("action")
+                        }
+                    }
                 }
             }
+            print(json.dumps(response_payload, indent=2))
         
         # =====================================================================
         # 4. ENCRIPTAR LA RESPUESTA Y DEVOLVERLA A META
