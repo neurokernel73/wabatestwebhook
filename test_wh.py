@@ -107,13 +107,13 @@ async def whatsapp_webhook(request: Request):
                 "action": "navigate",                  # Le indicamos a la app que navegue a la pantalla
                 "screen": "QUESTION_ONE", # Reemplaza con el ID exacto de tu Flow JSON
                 "data": {
-                    "screen_0_Nmero_de_la_tarjeta_0": "",
-                    "screen_0_Fecha_de_vencimiento_1":"",
-                    "screen_0_RFC_de_la_empresa_2":""
+                    "Nmero_de_la_tarjeta_9a3adc": "",
+                    "Fecha_de_vencimiento_7d7011":"",
+                    "RFC_de_la_empresa_7f52ac":""
                 }
             }
             print(json.dumps(response_payload, indent=2))
-            return Response(status_code=200, content=json.dumps(response_payload), media_type="text/plain")
+            #return Response(status_code=200, content=json.dumps(response_payload), media_type="text/plain")
         else:
             response_payload = {
                 "data": {
