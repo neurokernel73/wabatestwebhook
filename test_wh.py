@@ -191,6 +191,13 @@ async def whatsapp_webhook(request: Request):
 
 @app.post("/")
 async def webhookroot(request: Request):
+    try:
+        # Extraer el JSON que envía Meta
+        body = await request.json()
+        print(body) 
+    except Exception as e:
+        print(f"❌ Error procesando el webhook: {e}")
+        
     #send_whatsapp_flow_template("525513686487","activar_tarjeta","token_unico_123")
     return "ok"
 
