@@ -30,6 +30,30 @@ except FileNotFoundError:
 # =====================================================================
 # 2 y 3. WEBHOOK Y DESENCRIPTACIÓN DE LOS FLOWS (RECIBIR MENSAJES)
 # =====================================================================
+@app.get("/")
+async def verify_webhook(request: Request):
+    """
+    Endpoint de verificación (Challenge Handshake) para Facebook.
+    Responde con el 'hub.challenge' si el token coincide.
+    """
+    
+    # Parámetros obligatorios que envía Facebook
+    challenge_token = request.query_params.get("hub.challenge")
+    verify_token = request.query_params.get("hub.verify_token")
+    
+    # ⚠️ IMPORTANTE: Este token debe coincidir con el configurado en Facebook
+    expected_verify_token = "B0arLqVEXmV69kKyIZ6llUPP6FsYUkPQLuyhdIFEMEwv6m6UZsl793ExBaVDFbuO"
+    
+    if verify_token == expected_verify_token:
+        print("✅ Challenge exitoso: El token coincide. Activación completada.")
+        # Respondemos con el challenge para confirmar la conexión a Meta
+        return Response(status_code=200, content=challenge_token)
+    else:
+        print("❌ Challenge fallido: El token NO coincide.")
+        # Respondemos con error para que Meta vuelva a intentar o marque fallo
+        return Response(status_code=403, content="Invalid Verify Token")
+
+
 @app.post("/webhook")
 async def whatsapp_webhook(request: Request):
     """
