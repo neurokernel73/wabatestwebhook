@@ -120,7 +120,7 @@ async def whatsapp_webhook(request: Request):
                 "data": {
                     "extension_message_response": {
                         "params": {
-                            "flow_token": decrypted_data.get("action")
+                            "flow_token": decrypted_data.get("flow_token")
                         }
                     }
                 }
