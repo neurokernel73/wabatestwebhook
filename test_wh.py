@@ -104,7 +104,7 @@ async def whatsapp_webhook(request: Request):
             # Estructura requerida por Meta WhatsApp Flows
             response_payload = {
                 "version": decrypted_data.get("version", "3.0"), # Debe coincidir con la versión de la petición
-                "action": "navigate",                  # Le indicamos a la app que navegue a la pantalla
+                "action": "data_exchange",                  # Le indicamos a la app que navegue a la pantalla
                 "screen": "QUESTION_ONE", # Reemplaza con el ID exacto de tu Flow JSON
                 "data": {}
             }
