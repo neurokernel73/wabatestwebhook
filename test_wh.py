@@ -150,7 +150,7 @@ async def whatsapp_webhook(request: Request):
                 }
             }
             print(json.dumps(response_payload, indent=2))
-            send_whatsapp_template("525513686487","confirma_alta")
+            send_whatsapp_template("525513686487","confirma_alta",decrypted_data.get("data.tarjeta"))
         
         # =====================================================================
         # 4. ENCRIPTAR LA RESPUESTA Y DEVOLVERLA A META
@@ -271,7 +271,7 @@ def send_whatsapp_flow(phone_number: str, flow_name: str, flow_token: str = "tok
         
     return response.json()
 
-def send_whatsapp_template(phone_number: str, template_name: str):
+def send_whatsapp_template(phone_number: str, template_name: str, tarjeta: str):
     PHONE_NUMBER_ID = '1229158673605024'
     ACCESS_TOKEN = 'EAAV9gZB0xn7YBRzAOAWDwYY5fHMWJFclkXM2g2mNjhTZCs8xhkPcb0ia94LMCpUB7OJqlQXEgCr4vAcchNxlZAqduauWjz1DcDaO6Ksdwg49CMKevRv6xdCWAkIc7Qj7pt5R7CZAZAZAYA7XH3NYX9IGK2rUADig8R0Xr8JMiBcKtG6VlZBZBS1p95iFVGUpoAZDZD'
     
@@ -285,13 +285,25 @@ def send_whatsapp_template(phone_number: str, template_name: str):
     # Este es el Payload estándar para detonar un HSM (Plantilla) que incluye un Flow
     payload = {
         "messaging_product": "whatsapp",
-        "to":  f"{phone_number}",
+        "to": f"{phone_number}",
         "type": "template",
         "template": {
             "name": f"{template_name}",
             "language": {
                 "code": "es_MX"
-            }
+            },
+            "components": [
+                {
+                    "type": "body",
+                    "parameters": [
+                        {
+                            "type": "text",
+                            "parameter_name": "tarjeta",
+                            "text": "la información enviada es incorrecta."
+                        }
+                    ]
+                }
+            ]
         }
     }
     print(json.dumps(payload, indent=2))
