@@ -150,7 +150,7 @@ async def whatsapp_webhook(request: Request):
                 }
             }
             print(json.dumps(response_payload, indent=2))
-            send_whatsapp_template("525513686487","confirma_alta",decrypted_data.get("data.tarjeta"))
+            send_whatsapp_template("525513686487","confirma_alta",decrypted_data.get("data").tarjeta)
         
         # =====================================================================
         # 4. ENCRIPTAR LA RESPUESTA Y DEVOLVERLA A META
