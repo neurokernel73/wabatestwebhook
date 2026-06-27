@@ -150,6 +150,7 @@ async def whatsapp_webhook(request: Request):
                 }
             }
             print(json.dumps(response_payload, indent=2))
+            send_whatsapp_template("525513686487","confirma_alta")
         
         # =====================================================================
         # 4. ENCRIPTAR LA RESPUESTA Y DEVOLVERLA A META
@@ -204,18 +205,17 @@ async def webhookroot(request: Request):
                         tipo_mensaje = message.get("type")
                         if tipo_mensaje == 'text':
                             print("✅ El request es texto libre del usuario")
-                            send_whatsapp_flow_template("525513686487","activar_tarjeta","token_unico_123")
+                            send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
         
-    #send_whatsapp_flow_template("525513686487","activar_tarjeta","token_unico_123")
     return Response(status_code=200, content="Exito")
 
 
 # =====================================================================
 # 5. DETONAR UNA PLANTILLA CON EL BOTÓN DEL FLOW
 # =====================================================================
-def send_whatsapp_flow_template(phone_number: str, template_name: str, flow_token: str = "token_unico_123"):
+def send_whatsapp_flow(phone_number: str, flow_name: str, flow_token: str = "token_unico_123"):
     """
     Esta función envía de forma proactiva la plantilla que invita al usuario a abrir el Flow.
     """
@@ -254,7 +254,7 @@ def send_whatsapp_flow_template(phone_number: str, template_name: str, flow_toke
                     "flow_message_version": "3",
                     "flow_action": "data_exchange",
                     "flow_token": f"{flow_token}",
-                    "flow_name": f"{template_name}",
+                    "flow_name": f"{flow_name}",
                     "flow_cta": "Ingresar datos"
                 }
             }
@@ -271,4 +271,36 @@ def send_whatsapp_flow_template(phone_number: str, template_name: str, flow_toke
         
     return response.json()
 
-
+def send_whatsapp_template(phone_number: str, template_name: str, flow_token: str = "token_unico_123"):
+    PHONE_NUMBER_ID = '1229158673605024'
+    ACCESS_TOKEN = 'EAAV9gZB0xn7YBRzAOAWDwYY5fHMWJFclkXM2g2mNjhTZCs8xhkPcb0ia94LMCpUB7OJqlQXEgCr4vAcchNxlZAqduauWjz1DcDaO6Ksdwg49CMKevRv6xdCWAkIc7Qj7pt5R7CZAZAZAYA7XH3NYX9IGK2rUADig8R0Xr8JMiBcKtG6VlZBZBS1p95iFVGUpoAZDZD'
+    
+    url = f"https://graph.facebook.com/v18.0/{PHONE_NUMBER_ID}/messages"
+    
+    headers = {
+        "Authorization": f"Bearer {ACCESS_TOKEN}",
+        "Content-Type": "application/json"
+    }
+    
+    # Este es el Payload estándar para detonar un HSM (Plantilla) que incluye un Flow
+    payload = {
+        "messaging_product": "whatsapp",
+        "to":  f"{phone_number}",
+        "type": "template",
+        "template": {
+            "name": f"{template_name}",
+            "language": {
+                "code": "es_MX"
+            }
+        }
+    }
+    print(json.dumps(payload, indent=2))
+    # Enviamos el POST a la API Graph de Meta
+    response = requests.post(url, headers=headers, json=payload)
+    
+    if response.status_code == 200:
+        print(f"✅ Plantilla enviada a {phone_number}")
+    else:
+        print(f"❌ Error al enviar plantilla: {response.text}")
+        
+    return response.json()
