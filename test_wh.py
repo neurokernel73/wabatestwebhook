@@ -299,7 +299,7 @@ def send_whatsapp_template(phone_number: str, template_name: str, tarjeta: str):
                         {
                             "type": "text",
                             "parameter_name": "tarjeta",
-                            "text": "la información enviada es incorrecta."
+                            "text": f"{tarjeta}"
                         }
                     ]
                 }
