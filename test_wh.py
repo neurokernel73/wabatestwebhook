@@ -271,7 +271,7 @@ def send_whatsapp_flow(phone_number: str, flow_name: str, flow_token: str = "tok
         
     return response.json()
 
-def send_whatsapp_template(phone_number: str, template_name: str, flow_token: str = "token_unico_123"):
+def send_whatsapp_template(phone_number: str, template_name: str):
     PHONE_NUMBER_ID = '1229158673605024'
     ACCESS_TOKEN = 'EAAV9gZB0xn7YBRzAOAWDwYY5fHMWJFclkXM2g2mNjhTZCs8xhkPcb0ia94LMCpUB7OJqlQXEgCr4vAcchNxlZAqduauWjz1DcDaO6Ksdwg49CMKevRv6xdCWAkIc7Qj7pt5R7CZAZAZAYA7XH3NYX9IGK2rUADig8R0Xr8JMiBcKtG6VlZBZBS1p95iFVGUpoAZDZD'
     
