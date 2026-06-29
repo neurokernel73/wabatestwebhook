@@ -114,7 +114,7 @@ async def whatsapp_webhook(request: Request):
         decrypted_data = json.loads(decrypted_data_bytes.decode('utf-8'))
         print("✅ Datos exitosamente desencriptados del Flow:")
         print(json.dumps(decrypted_data, indent=2))
-        
+        body = json.dumps(decrypted_data, indent=2)
         if decrypted_data.get("action") == "ping":
             response_payload = {
                 "data": {
@@ -149,8 +149,7 @@ async def whatsapp_webhook(request: Request):
                     }
                 }
             }
-            body = json.dumps(response_payload, indent=2)
-            print(body)
+
             tarjeta =  body["data"]["numero_tarjeta"]
             send_whatsapp_template("525513686487","confirma_alta",f"{tarjeta}")
         
