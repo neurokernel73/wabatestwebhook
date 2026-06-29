@@ -217,9 +217,10 @@ async def webhookroot(request: Request):
                                     send_whatsapp_template("525513686487","opciones","")
                             except:
                                 send_whatsapp_template("525513686487","opciones","")
-                        elif body["entry"][0]["changes"][0]["value"]["messages"][0]["interactive"]["type"] == "nfm_reply":
-                            print("✅ El request es una confirmación de WhatsApp")
-                            return Response(status_code=200, content="Exito")
+                        elif tipo_mensaje == "interactive":
+                            if body["entry"][0]["changes"][0]["value"]["messages"][0]["interactive"]["type"] == "nfm_reply":
+                                print("✅ El request es una confirmación de WhatsApp")
+                                return Response(status_code=200, content="Exito")
                         else:
                             try:
                                 opcion =  body["entry"][0]["changes"][0]["value"]["messages"][0]["button"]["payload"]
