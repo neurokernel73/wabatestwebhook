@@ -261,32 +261,60 @@ def send_whatsapp_flow(phone_number: str, flow_name: str, flow_token: str = "tok
     }
     
     # Este es el Payload estándar para detonar un HSM (Plantilla) que incluye un Flow
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": f"{phone_number}",
-        "recipient_type": "individual",
-        "type": "interactive",
-        "interactive": {
-            "type": "flow",
-            "header": {
-                "type": "text",
-                "text": "Agregar Tarjeta"
-            },
-            "body": {
-                "text": "Datos de la tarjeta"
-            },
-            "action": {
-                "name": "flow",
-                "parameters": {
-                    "flow_message_version": "3",
-                    "flow_action": "data_exchange",
-                    "flow_token": f"{flow_token}",
-                    "flow_name": f"{flow_name}",
-                    "flow_cta": "Ingresar datos"
+    if flow_name == "activar_tarjeta":
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": f"{phone_number}",
+            "recipient_type": "individual",
+            "type": "interactive",
+            "interactive": {
+                "type": "flow",
+                "header": {
+                    "type": "text",
+                    "text": "Agregar Tarjeta"
+                },
+                "body": {
+                    "text": "Datos de la tarjeta"
+                },
+                "action": {
+                    "name": "flow",
+                    "parameters": {
+                        "flow_message_version": "3",
+                        "flow_action": "data_exchange",
+                        "flow_token": f"{flow_token}",
+                        "flow_name": f"{flow_name}",
+                        "flow_cta": "Ingresar datos"
+                    }
                 }
             }
         }
-    }
+    elif flow_name == "consulta_nip":
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": f"{phone_number}",
+            "recipient_type": "individual",
+            "type": "interactive",
+            "interactive": {
+                "type": "flow",
+                "header": {
+                    "type": "text",
+                    "text": "Consulta NIP"
+                },
+                "body": {
+                    "text": "Datos de la tarjeta"
+                },
+                "action": {
+                    "name": "flow",
+                    "parameters": {
+                        "flow_message_version": "3",
+                        "flow_action": "data_exchange",
+                        "flow_token": f"{flow_token}",
+                        "flow_name": f"{flow_name}",
+                        "flow_cta": "Ingresar datos"
+                    }
+                }
+            }
+        }
     print(json.dumps(payload, indent=2))
     # Enviamos el POST a la API Graph de Meta
     response = requests.post(url, headers=headers, json=payload)
