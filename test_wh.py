@@ -208,6 +208,7 @@ async def webhookroot(request: Request):
                             #body_value = body["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
                             try:
                                 opcion =  body["entry"][0]["changes"][0]["value"]["messages"][0]["button"]["payload"]
+                                print(opcion)
                                 if opcion.lower().strip() == "agregar tarjeta":
                                     send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
                                 else:
