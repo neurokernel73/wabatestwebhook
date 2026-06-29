@@ -206,10 +206,13 @@ async def webhookroot(request: Request):
                         if tipo_mensaje == 'text':
                             print("✅ El request es texto libre del usuario")
                             #body_value = body["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
-                            opcion =  body["entry"][0]["changes"][0]["value"]["messages"][0]["button"]["payload"]
-                            if opcion.lower().strip() == "agregar tarjeta":
-                                send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
-                            else:
+                            try:
+                                opcion =  body["entry"][0]["changes"][0]["value"]["messages"][0]["button"]["payload"]
+                                if opcion.lower().strip() == "agregar tarjeta":
+                                    send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
+                                else:
+                                    send_whatsapp_template("525513686487","opciones","")
+                            except:
                                 send_whatsapp_template("525513686487","opciones","")
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
