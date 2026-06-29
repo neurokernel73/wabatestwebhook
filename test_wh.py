@@ -21,7 +21,7 @@ try:
         private_key = load_pem_private_key(
             key_file.read(),
             password=None,
-        )body["data"]["numero_tarjeta"]
+        )
 except FileNotFoundError:
     print("⚠️ Advertencia: No se encontró el archivo clave_privada_waba.pem. El webhook fallará al recibir Flows.")
     private_key = None
