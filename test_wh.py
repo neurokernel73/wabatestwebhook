@@ -215,6 +215,16 @@ async def webhookroot(request: Request):
                                     send_whatsapp_template("525513686487","opciones","")
                             except:
                                 send_whatsapp_template("525513686487","opciones","")
+                        else:
+                            try:
+                                opcion =  body["entry"][0]["changes"][0]["value"]["messages"][0]["button"]["payload"]
+                                print(opcion)
+                                if opcion.lower().strip() == "agregar tarjeta":
+                                    send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
+                                else:
+                                    send_whatsapp_template("525513686487","opciones","")
+                            except:
+                                send_whatsapp_template("525513686487","opciones","")
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
         
