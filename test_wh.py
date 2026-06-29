@@ -21,7 +21,7 @@ try:
         private_key = load_pem_private_key(
             key_file.read(),
             password=None,
-        )
+        )body["data"]["numero_tarjeta"]
 except FileNotFoundError:
     print("⚠️ Advertencia: No se encontró el archivo clave_privada_waba.pem. El webhook fallará al recibir Flows.")
     private_key = None
@@ -150,7 +150,7 @@ async def whatsapp_webhook(request: Request):
                 }
             }
 
-            tarjeta =  body["data"]["numero_tarjeta"]
+            tarjeta = body.get("data", {}).get("numero_tarjeta")
             send_whatsapp_template("525513686487","confirma_alta",f"{tarjeta}")
         
         # =====================================================================
