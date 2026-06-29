@@ -227,6 +227,8 @@ async def webhookroot(request: Request):
                                 print(opcion)
                                 if opcion.lower().strip() == "agregar tarjeta":
                                     send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
+                                elif opcion.lower().strip() == "consulta nip":
+                                    send_whatsapp_flow("525513686487","consulta_nip","token_unico_123")
                                 else:
                                     send_whatsapp_template("525513686487","opciones","")
                             except:
