@@ -286,30 +286,42 @@ def send_whatsapp_template(phone_number: str, template_name: str, tarjeta: str):
         "Content-Type": "application/json"
     }
     
-    # Este es el Payload estándar para detonar un HSM (Plantilla) que incluye un Flow
-    payload = {
-        "messaging_product": "whatsapp",
-        "to": f"{phone_number}",
-        "type": "template",
-        "template": {
-            "name": f"{template_name}",
-            "language": {
-                "code": "es_MX"
-            },
-            "components": [
-                {
-                    "type": "body",
-                    "parameters": [
-                        {
-                            "type": "text",
-                            "parameter_name": "tarjeta",
-                            "text": f"{tarjeta}"
-                        }
-                    ]
+    if template_name == "opciones":
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": f"{phone_number}",
+            "type": "template",
+            "template": {
+                "name": f"{template_name}",
+                "language": {
+                    "code": "es_MX"
                 }
-            ]
+            }
         }
-    }
+    else:
+        payload = {
+            "messaging_product": "whatsapp",
+            "to": f"{phone_number}",
+            "type": "template",
+            "template": {
+                "name": f"{template_name}",
+                "language": {
+                    "code": "es_MX"
+                },
+                "components": [
+                    {
+                        "type": "body",
+                        "parameters": [
+                            {
+                                "type": "text",
+                                "parameter_name": "tarjeta",
+                                "text": f"{tarjeta}"
+                            }
+                        ]
+                    }
+                ]
+            }
+        }
     print(json.dumps(payload, indent=2))
     # Enviamos el POST a la API Graph de Meta
     response = requests.post(url, headers=headers, json=payload)
