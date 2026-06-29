@@ -149,7 +149,8 @@ async def whatsapp_webhook(request: Request):
                     }
                 }
             }
-            print(json.dumps(response_payload, indent=2))
+            body = json.dumps(response_payload, indent=2)
+            print(body)
             tarjeta =  body["data"]["numero_tarjeta"]
             send_whatsapp_template("525513686487","confirma_alta",f"{tarjeta}")
         
