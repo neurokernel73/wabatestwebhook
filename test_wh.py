@@ -115,7 +115,6 @@ async def whatsapp_webhook(request: Request):
         print("✅ Datos exitosamente desencriptados del Flow:")
         print(json.dumps(decrypted_data, indent=2))
         body = json.dumps(decrypted_data, indent=2)
-        print(body.get('data', {}).get('numero_tarjeta',{}))
         if decrypted_data.get("action") == "ping":
             response_payload = {
                 "data": {
@@ -142,6 +141,7 @@ async def whatsapp_webhook(request: Request):
             # En cualquier caso que no sea "ping" o "INIT" se asume que el Flow terminó correctamente y envió los datos capturados
             # Se notifica a la aplicación que finalizó el Flow y se envía el template de confirmación
             # Se extraen los datos capturados
+            print(body.get('data', {}).get('numero_tarjeta',{}))
             response_payload = {
                 "screen": "SUCCESS",
                 "data": {
