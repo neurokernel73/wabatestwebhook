@@ -152,8 +152,7 @@ async def whatsapp_webhook(request: Request):
                 }
             }
             print(body)
-            #tarjeta = "1111"
-            send_whatsapp_template("525513686487","confirma_alta",f"{tarjeta}")
+            send_whatsapp_template("525513686487","confirma_alta",f"{tarjeta[-4:]}")
         
         # =====================================================================
         # 4. ENCRIPTAR LA RESPUESTA Y DEVOLVERLA A META
