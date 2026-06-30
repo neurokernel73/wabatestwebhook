@@ -115,6 +115,7 @@ async def whatsapp_webhook(request: Request):
         print("✅ Datos exitosamente desencriptados del Flow:")
         print(json.dumps(decrypted_data, indent=2))
         body = json.dumps(decrypted_data, indent=2)
+        print(body.get('data', {}).get('numero_tarjeta',{}))
         if decrypted_data.get("action") == "ping":
             response_payload = {
                 "data": {
