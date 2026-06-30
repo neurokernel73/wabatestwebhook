@@ -14,8 +14,6 @@ app = FastAPI()
 # =====================================================================
 # 1. CARGA DE LA LLAVE PRIVADA RSA
 # =====================================================================
-# Asegúrate de tener tu archivo 'private.pem' en el mismo directorio.
-# Esta llave nunca debe exponerse ni subirse a repositorios públicos.
 try:
     with open("clave_privada_waba.pem", "rb") as key_file:
         private_key = load_pem_private_key(
@@ -30,6 +28,7 @@ except FileNotFoundError:
 # =====================================================================
 # 2 y 3. WEBHOOK Y DESENCRIPTACIÓN DE LOS FLOWS (RECIBIR MENSAJES)
 # =====================================================================
+# Endpoint para verificar el webhook de Meta (GET)
 @app.get("/")
 async def verify_webhook(request: Request):
     """
@@ -53,12 +52,13 @@ async def verify_webhook(request: Request):
         # Respondemos con error para que Meta vuelva a intentar o marque fallo
         return Response(status_code=403, content="Invalid Verify Token")
 
-
+# Endpoint para recibir los datos del formulario de WhatsApp Flows (POST)
 @app.post("/webhook")
 async def whatsapp_webhook(request: Request):
     """
     Este endpoint atrapa los envíos del formulario de WhatsApp Flows.
     """
+    ###### Este código sólo es para identificar de donde provienen las peticiones y establecer una regla de firewall ######
     dominio_resuelto = "No se pudo resolver"
     # 1. Obtener la IP real del backend cliente
     ip_cliente = request.headers.get("X-Forwarded-For")
@@ -77,13 +77,13 @@ async def whatsapp_webhook(request: Request):
             dominio_resuelto = f"IP: {ip_cliente} (Sin registro DNS)"
             
     print(f'Dominio: {dominio_resuelto}')
+    ###### Fin del código para identificar de donde provienen las peticiones ######
     try:
         # Extraer el JSON que envía Meta
         body = await request.json()
         print(body) 
         # Validar que es un payload encriptado de Flows (Omitimos mensajes de texto normales aquí)
         if "encrypted_flow_data" not in body:
-            # Aquí podrías manejar mensajes estándar o notificaciones de estado
             return {"status": "active"}
             
         encrypted_aes_key_b64 = body.get("encrypted_aes_key")
@@ -122,23 +122,25 @@ async def whatsapp_webhook(request: Request):
                 }
             }
         elif decrypted_data.get("action") == "INIT":
-            # Extraemos el token si pasaste algún ID o información en él
+            # Extraemos el token
             flow_token = decrypted_data.get("flow_token") 
             
-            # Estructura requerida por Meta WhatsApp Flows
+            # Estructura requerida por Meta WhatsApp para inicializar Flows
             response_payload = {
                 "version": decrypted_data.get("version", "3.0"), # Debe coincidir con la versión de la petición
-                "action": "navigate",     # Le indicamos a la app que navegue a la pantalla
-                "screen": "QUESTION_ONE", # Reemplaza con el ID exacto de tu Flow JSON
-                "data": {
+                "action": "navigate",     # Le indicamos a la app que navegue a la pantalla, el Flow Json debe configurarse con el "action:" en "data-exchange"
+                "screen": "QUESTION_ONE", 
+                "data": {                 # Son los datos que se van a enviar al Flow, se pueden enviar vacios para inicializar el From o con datos para pre llenarlo.
                     "tarjeta": "",
                     "vencimiento": "",
                     "rfc": ""
                 }
             }
             print(json.dumps(response_payload, indent=2))
-            #return Response(status_code=200, content=json.dumps(response_payload), media_type="text/plain")
         else:
+            # En cualquier caso que no sea "ping" o "INIT" se asume que el Flow terminó correctamente y envió los datos capturados
+            # Se notifica a la aplicación que finalizó el Flow y se envía el template de confirmación
+            # Se extraen los datos capturados
             response_payload = {
                 "screen": "SUCCESS",
                 "data": {
@@ -150,7 +152,6 @@ async def whatsapp_webhook(request: Request):
                 }
             }
             print(body)
-            #tarjeta =  body.get("data", {}).get("numero_tarjeta")
             tarjeta = "1111"
             send_whatsapp_template("525513686487","confirma_alta",f"{tarjeta}")
         
@@ -176,6 +177,7 @@ async def whatsapp_webhook(request: Request):
     except Exception as e:
         print(f"❌ Error procesando el webhook: {e}")
         # Retornar error 500 informará a Meta que hubo un problema y mostrará error en el celular
+        # Se dejó fijo un payload de estatus activo al ser un mock sin funcionalidad completa
         response_payload = {
             "data": {
                 "status": "active",
@@ -192,6 +194,7 @@ async def whatsapp_webhook(request: Request):
         encrypted_response_b64 = base64.b64encode(encrypted_response_bytes).decode('utf-8')
         return Response(status_code=200, content=encrypted_response_b64)
 
+# Endpoint para recibir texto libre desde WhastApp (POST), Webhook General
 @app.post("/")
 async def webhookroot(request: Request):
     try:
@@ -205,50 +208,49 @@ async def webhookroot(request: Request):
                     messages = value["messages"]
                     for message in messages:
                         tipo_mensaje = message.get("type")
+                        # Detectar que tipo de mensajes se ha enviado desde WhatsApp para determinar el flujo a seguir
+                        # Se detecta que el usuario envió texto libre
                         if tipo_mensaje == 'text':
-                            print("✅ El request es texto libre del usuario")
-                            #body_value = body["entry"][0]["changes"][0]["value"]["messages"][0]["text"]["body"]
-                            try:
-                                opcion =  body["entry"][0]["changes"][0]["value"]["messages"][0]["button"]["payload"]
-                                print(opcion)
-                                if opcion.lower().strip() == "agregar tarjeta":
-                                    send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
-                                else:
-                                    send_whatsapp_template("525513686487","opciones","")
-                            except:
-                                send_whatsapp_template("525513686487","opciones","")
+                            print("✅ El request es texto libre del usuario")  
+                            send_whatsapp_template("525513686487","opciones","")
                         elif tipo_mensaje == "interactive":
+                            # Se detecta que es una confirmación automática de WhatsApp
                             if body["entry"][0]["changes"][0]["value"]["messages"][0]["interactive"]["type"] == "nfm_reply":
                                 print("✅ El request es una confirmación de WhatsApp")
                                 return Response(status_code=200, content="Exito")
                         else:
                             try:
+                                # Se detecta que se ha presionado un botón desde un template y se obtiene el payload del botón
                                 opcion =  body["entry"][0]["changes"][0]["value"]["messages"][0]["button"]["payload"]
-                                print(opcion)
+                                print(opcion) 
+                                # Detectar el botón presionado para determinar el flujo a seguir
                                 if opcion.lower().strip() == "agregar tarjeta":
                                     send_whatsapp_flow("525513686487","activar_tarjeta","token_unico_123")
                                 elif opcion.lower().strip() == "consulta nip":
                                     send_whatsapp_flow("525513686487","consulta_nip","token_unico_123")
                                 else:
+                                    # Cualquier cadena que se reciba y no se tenga identificada redirige al template de opciones
                                     send_whatsapp_template("525513686487","opciones","")
                             except:
                                 send_whatsapp_template("525513686487","opciones","")
     except Exception as e:
+        # En los casos de error se debe implementar el flujo de notificación de errores de Meta
         print(f"❌ Error procesando el webhook: {e}")
         
     return Response(status_code=200, content="Exito")
 
 
 # =====================================================================
-# 5. DETONAR UNA PLANTILLA CON EL BOTÓN DEL FLOW
+# 5. DETONAR UNA PLANTILLA o FLOW 
 # =====================================================================
 def send_whatsapp_flow(phone_number: str, flow_name: str, flow_token: str = "token_unico_123"):
     """
-    Esta función envía de forma proactiva la plantilla que invita al usuario a abrir el Flow.
+    Esta función envía un Flow
     """
     # Preferentemente cargar estas variables de entorno (.env)
     # PHONE_NUMBER_ID = os.environ.get("PHONE_NUMBER_ID", "TU_PHONE_NUMBER_ID")
     # ACCESS_TOKEN = os.environ.get("WHATSAPP_ACCESS_TOKEN", "TU_ACCESS_TOKEN")
+    # Para fines de este prototipo se dejan definidas las variables de entorno en duro
 
     PHONE_NUMBER_ID = '1229158673605024'
     ACCESS_TOKEN = 'EAAV9gZB0xn7YBRzAOAWDwYY5fHMWJFclkXM2g2mNjhTZCs8xhkPcb0ia94LMCpUB7OJqlQXEgCr4vAcchNxlZAqduauWjz1DcDaO6Ksdwg49CMKevRv6xdCWAkIc7Qj7pt5R7CZAZAZAYA7XH3NYX9IGK2rUADig8R0Xr8JMiBcKtG6VlZBZBS1p95iFVGUpoAZDZD'
@@ -260,7 +262,7 @@ def send_whatsapp_flow(phone_number: str, flow_name: str, flow_token: str = "tok
         "Content-Type": "application/json"
     }
     
-    # Este es el Payload estándar para detonar un HSM (Plantilla) que incluye un Flow
+    # Se arma el payload de acuerdo al Flow a enviar
     if flow_name == "activar_tarjeta":
         payload = {
             "messaging_product": "whatsapp",
@@ -327,6 +329,9 @@ def send_whatsapp_flow(phone_number: str, flow_name: str, flow_token: str = "tok
     return response.json()
 
 def send_whatsapp_template(phone_number: str, template_name: str, tarjeta: str):
+    """
+    Esta función envía una plantilla
+    """
     PHONE_NUMBER_ID = '1229158673605024'
     ACCESS_TOKEN = 'EAAV9gZB0xn7YBRzAOAWDwYY5fHMWJFclkXM2g2mNjhTZCs8xhkPcb0ia94LMCpUB7OJqlQXEgCr4vAcchNxlZAqduauWjz1DcDaO6Ksdwg49CMKevRv6xdCWAkIc7Qj7pt5R7CZAZAZAYA7XH3NYX9IGK2rUADig8R0Xr8JMiBcKtG6VlZBZBS1p95iFVGUpoAZDZD'
     
@@ -336,7 +341,7 @@ def send_whatsapp_template(phone_number: str, template_name: str, tarjeta: str):
         "Authorization": f"Bearer {ACCESS_TOKEN}",
         "Content-Type": "application/json"
     }
-    
+    # Se arma el payload de acuerdo a la plantilla a enviar
     if template_name == "opciones":
         payload = {
             "messaging_product": "whatsapp",
@@ -373,6 +378,7 @@ def send_whatsapp_template(phone_number: str, template_name: str, tarjeta: str):
                 ]
             }
         }
+
     print(json.dumps(payload, indent=2))
     # Enviamos el POST a la API Graph de Meta
     response = requests.post(url, headers=headers, json=payload)
